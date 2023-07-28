@@ -39,6 +39,7 @@ func (r *router) Init(e *gin.Engine) *gin.Engine {
 	safe := v1.Group("/safe").Use(utils.Auth())
 	{
 		safe.GET("/emas", r.ctrlEmas.Get)
+		safe.GET("/user", r.ctrlUser.GetUserSession)
 	}
 
 	v1.POST("/auth/login", r.ctrlAuth.SignIn)

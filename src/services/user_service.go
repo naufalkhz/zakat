@@ -10,6 +10,7 @@ import (
 
 type UserService interface {
 	Get(ctx context.Context) (*models.User, error)
+	GetUserById(ctx context.Context, userId uint) (*models.User, error)
 	Create(ctx context.Context, user *models.User) (*models.User, error)
 }
 
@@ -45,4 +46,13 @@ func (e *userService) Create(ctx context.Context, user *models.User) (*models.Us
 		return nil, err
 	}
 	return res, nil
+}
+
+func (e *userService) GetUserById(ctx context.Context, userId uint) (*models.User, error) {
+	user, err := e.repository.Get(ctx)
+	if err != nil {
+		zap.L().Error("error get harga emas", zap.Error(err))
+		return nil, err
+	}
+	return user, nil
 }
