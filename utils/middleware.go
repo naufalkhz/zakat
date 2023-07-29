@@ -10,13 +10,13 @@ func Auth() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		tokenString := context.GetHeader("Authorization")
 		if tokenString == "" {
-			SendResponse(context, http.StatusBadRequest, "request does not contain an access token")
+			ErrorResponse(context, http.StatusBadRequest, "request does not contain an access token")
 			context.Abort()
 			return
 		}
 		err := ValidateToken(tokenString)
 		if err != nil {
-			SendResponse(context, http.StatusBadRequest, err.Error())
+			ErrorResponse(context, http.StatusUnauthorized, err.Error())
 			context.Abort()
 			return
 		}

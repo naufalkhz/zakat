@@ -28,7 +28,7 @@ func (e *authService) Login(ctx context.Context, auth *models.AuthRequest) (*mod
 	res, err := e.repository.Get(ctx, auth)
 	if err != nil {
 		zap.L().Error("error get user", zap.Error(err))
-		return res, nil
+		return nil, err
 	}
 
 	if err := res.CheckPassword(auth.Password); err != nil {

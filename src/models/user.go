@@ -9,7 +9,7 @@ type User struct {
 	gorm.Model
 	Nama         string `json:"nama" binding:"required"`
 	Email        string `json:"email" gorm:"unique" binding:"required,email"`
-	Password     string `json:"password"`
+	Password     string `json:"password" binding:"required"`
 	JenisKelamin string `json:"jenis_kelamin"`
 	TanggalLahir string `json:"tanggal_lahir"`
 	NomorTelepon string `json:"nomor_telepon" gorm:"unique" binding:"required,numeric"`

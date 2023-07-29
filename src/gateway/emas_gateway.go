@@ -44,6 +44,6 @@ func (r *emasGateway) GetHargaEmas(ctx context.Context) (*models.Emas, error) {
 	return &models.Emas{
 		Harga:  gjson.GetBytes(resp.Body(), "data.0.buy").Int(),
 		Tipe:   gjson.GetBytes(resp.Body(), "data.0.type").String(),
-		Source: gjson.GetBytes(resp.Body(), "meta.url").String(),
+		Sumber: gjson.GetBytes(resp.Body(), "meta.url").String(),
 	}, nil
 }

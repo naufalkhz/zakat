@@ -17,7 +17,7 @@ type UserService interface {
 	Get(ctx context.Context) (*models.User, error)
 	Create(ctx context.Context, user *models.User) (*models.User, error)
 	Edit(ctx *gin.Context, user *models.User) (*models.User, error)
-	GetUserById(ctx *gin.Context) (*models.User, error)
+	GetUserSession(ctx *gin.Context) (*models.User, error)
 }
 
 type userService struct {
@@ -55,7 +55,7 @@ func (e *userService) Create(ctx context.Context, user *models.User) (*models.Us
 }
 
 func (e *userService) Edit(ctx *gin.Context, userReq *models.User) (*models.User, error) {
-	userTarget, err := e.GetUserById(ctx)
+	userTarget, err := e.GetUserSession(ctx)
 	if err != nil {
 		zap.L().Error("failed toget user", zap.Error(err))
 		return nil, err
@@ -69,7 +69,7 @@ func (e *userService) Edit(ctx *gin.Context, userReq *models.User) (*models.User
 	return res, nil
 }
 
-func (e *userService) GetUserById(ctx *gin.Context) (*models.User, error) {
+func (e *userService) GetUserSession(ctx *gin.Context) (*models.User, error) {
 	userId, err := getUserId(ctx)
 	if err != nil {
 		zap.L().Error("failed parse token", zap.Error(err))

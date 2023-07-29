@@ -26,21 +26,21 @@ func NewAuthInterface(svc services.AuthService) AuthInterface {
 func (e *authImplementation) SignIn(c *gin.Context) {
 	var auth *models.AuthRequest
 	if err := c.ShouldBindJSON(&auth); err != nil {
-		utils.SendResponse(c, http.StatusBadRequest, err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := e.svc.Login(c, auth)
 	if err != nil {
-		utils.SendResponse(c, http.StatusInternalServerError, err.Error())
+		utils.ErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	tokenString, err := utils.GenerateJWT(user.ID, user.Email)
 	if err != nil {
-		utils.SendResponse(c, http.StatusInternalServerError, err.Error())
+		utils.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.SendResponse(c, http.StatusOK, models.AuthReponse{Token: tokenString, User: *user})
+	utils.SuccessResponse(c, http.StatusOK, models.AuthReponse{Token: tokenString, User: *user})
 }

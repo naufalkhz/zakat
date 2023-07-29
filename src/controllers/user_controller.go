@@ -27,50 +27,46 @@ func NewUserInterface(svc services.UserService) UserInterface {
 }
 
 func (e *userImplementation) Get(c *gin.Context) {
-
 	user, err := e.svc.Get(c)
 	if err != nil {
-		utils.SendResponse(c, http.StatusInternalServerError, err.Error())
+		utils.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	utils.SendResponse(c, http.StatusOK, user)
+	utils.SuccessResponse(c, http.StatusOK, user)
 }
 
 func (e *userImplementation) Create(c *gin.Context) {
 	var user *models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		utils.SendResponse(c, http.StatusBadRequest, err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := e.svc.Create(c, user)
 	if err != nil {
-		utils.SendResponse(c, http.StatusInternalServerError, err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	utils.SendResponse(c, http.StatusOK, user)
+	utils.SuccessResponse(c, http.StatusOK, user)
 }
 
 func (e *userImplementation) Edit(c *gin.Context) {
 	var user *models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		utils.SendResponse(c, http.StatusBadRequest, err.Error())
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := e.svc.Edit(c, user)
 	if err != nil {
-		utils.SendResponse(c, http.StatusInternalServerError, err.Error())
+		utils.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	utils.SendResponse(c, http.StatusOK, user)
+	utils.SuccessResponse(c, http.StatusOK, user)
 }
 
 func (e *userImplementation) GetUserSession(c *gin.Context) (*models.User, error) {
-	user, err := e.svc.GetUserById(c)
+	user, err := e.svc.GetUserSession(c)
 	if err != nil {
 		return nil, err
 	}
@@ -79,9 +75,9 @@ func (e *userImplementation) GetUserSession(c *gin.Context) (*models.User, error
 
 // TODO: Remove this function, just for checking on rest
 func (e *userImplementation) GetUserSessionRest(c *gin.Context) {
-	user, err := e.svc.GetUserById(c)
+	user, err := e.svc.GetUserSession(c)
 	if err != nil {
-		utils.SendResponse(c, http.StatusInternalServerError, nil)
+		utils.ErrorResponse(c, http.StatusInternalServerError, nil)
 	}
-	utils.SendResponse(c, http.StatusOK, user)
+	utils.SuccessResponse(c, http.StatusOK, user)
 }

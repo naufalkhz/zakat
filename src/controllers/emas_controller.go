@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/naufalkhz/zakat/src/services"
+	"github.com/naufalkhz/zakat/utils"
 )
 
 type EmasInterface interface {
@@ -24,9 +25,8 @@ func NewEmasInterface(svc services.EmasService) EmasInterface {
 func (e *emasImplementation) Get(c *gin.Context) {
 	resultEmas, err := e.svc.Get(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		c.Abort()
+		utils.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusCreated, resultEmas)
+	utils.SuccessResponse(c, http.StatusOK, resultEmas)
 }
