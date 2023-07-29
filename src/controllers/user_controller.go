@@ -1,23 +1,19 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/naufalkhz/zakat/src/models"
 	"github.com/naufalkhz/zakat/src/services"
 	"github.com/naufalkhz/zakat/utils"
-	"github.com/spf13/cast"
 )
 
 type UserInterface interface {
 	Get(c *gin.Context)
 	Create(c *gin.Context)
-	// GetUserSession(c *gin.Context) (*models.User, error)
-	GetUserSession(c *gin.Context)
+	Edit(c *gin.Context)
+	GetUserSessionRest(c *gin.Context)
 }
 
 type userImplementation struct {
@@ -57,36 +53,33 @@ func (e *userImplementation) Create(c *gin.Context) {
 	utils.SendResponse(c, http.StatusOK, user)
 }
 
-func UserIdSession(context *gin.Context) (uint, error) {
-	tokenString := context.GetHeader("Authorization")
-	claims := jwt.MapClaims{}
-	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		jwtSecret := os.Getenv("JWT_SECRET")
-		return []byte(jwtSecret), nil
-	})
+func (e *userImplementation) Edit(c *gin.Context) {
+	var user *models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		utils.SendResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
 
+	user, err := e.svc.Edit(c, user)
 	if err != nil {
-		return 0, fmt.Errorf("failed parse token")
+		utils.SendResponse(c, http.StatusInternalServerError, err.Error())
+		return
 	}
 
-	var user = make(map[string]interface{})
-
-	for key, val := range claims {
-		user[key] = val
-	}
-
-	return cast.ToUint(user["id"]), nil
+	utils.SendResponse(c, http.StatusOK, user)
 }
 
-func (e *userImplementation) GetUserSession(c *gin.Context) {
-	idUser, err := UserIdSession(c)
-
+func (e *userImplementation) GetUserSession(c *gin.Context) (*models.User, error) {
+	user, err := e.svc.GetUserById(c)
 	if err != nil {
-		utils.SendResponse(c, http.StatusInternalServerError, nil)
+		return nil, err
 	}
+	return user, err
+}
 
-	// var user *models.User
-	user, err := e.svc.GetUserById(c, idUser)
+// TODO: Remove this function, just for checking on rest
+func (e *userImplementation) GetUserSessionRest(c *gin.Context) {
+	user, err := e.svc.GetUserById(c)
 	if err != nil {
 		utils.SendResponse(c, http.StatusInternalServerError, nil)
 	}

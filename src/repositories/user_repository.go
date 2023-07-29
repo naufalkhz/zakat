@@ -8,8 +8,9 @@ import (
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, user *models.User) (*models.User, error)
 	Get(ctx context.Context) (*models.User, error)
+	Create(ctx context.Context, user *models.User) (*models.User, error)
+	Edit(ctx context.Context, userTarget, editRequest *models.User) (*models.User, error)
 	GetUserById(ctx context.Context, userId uint) (*models.User, error)
 }
 
@@ -24,6 +25,11 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 func (r *userRepository) Create(ctx context.Context, user *models.User) (*models.User, error) {
 	tx := r.db.WithContext(ctx).Create(&user)
 	return user, tx.Error
+}
+
+func (r *userRepository) Edit(ctx context.Context, userTarget, editRequest *models.User) (*models.User, error) {
+	tx := r.db.WithContext(ctx).Model(&userTarget).Omit("password").Updates(editRequest)
+	return userTarget, tx.Error
 }
 
 func (r *userRepository) Get(ctx context.Context) (*models.User, error) {
