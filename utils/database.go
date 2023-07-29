@@ -33,5 +33,5 @@ func GetConnDB(connString string) (*gorm.DB, error) {
 }
 
 func migrate(conn *gorm.DB) error {
-	return conn.AutoMigrate(&models.User{}, &models.Emas{}, &models.Bank{}, &models.ZakatPenghasilan{}, &models.ZakatTabungan{}, &models.ZakatPerdagangan{}, &models.ZakatEmas{})
+	return conn.AutoMigrate(&models.User{}, &models.Emas{}, &models.Bank{}, &models.ZakatPenghasilan{}, &models.ZakatTabungan{}, &models.ZakatPerdagangan{}, &models.ZakatEmas{}, &models.Infaq{})
 }

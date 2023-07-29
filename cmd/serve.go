@@ -53,6 +53,7 @@ var serveCmd = &cobra.Command{
 		repositoryAuth := repositories.NewAuthRepository(db)
 		repositoryBank := repositories.NewBankRepository(db)
 		repositoryZakat := repositories.NewZakatRepository(db)
+		repositoryInfaq := repositories.NewInfaqRepository(db)
 
 		// Gateway
 		gatewayEmas := gateway.NewEmasGateway()
@@ -62,8 +63,8 @@ var serveCmd = &cobra.Command{
 		serviceUser := services.NewUserService(repositoryUser)
 		serviceAuth := services.NewAuthService(repositoryAuth)
 		serviceBank := services.NewBankService(repositoryBank)
-
 		serviceZakat := services.NewZakatService(repositoryZakat, serviceUser, serviceBank, serviceEmas)
+		serviceInfaq := services.NewInfaqService(repositoryInfaq, serviceUser, serviceBank)
 
 		// Controller
 		ctrlEmas := controllers.NewEmasInterface(serviceEmas)
@@ -71,10 +72,11 @@ var serveCmd = &cobra.Command{
 		ctrlAuth := controllers.NewAuthInterface(serviceAuth)
 		ctrlBank := controllers.NewBankInterface(serviceBank)
 		ctrlZakat := controllers.NewZakatInterface(serviceZakat)
+		ctrlInfaq := controllers.NewInfaqInterface(serviceInfaq)
 
 		go src.CronTask(gatewayEmas, serviceEmas)
 
-		router := src.NewRouter(ctrlEmas, ctrlUser, ctrlAuth, ctrlBank, ctrlZakat)
+		router := src.NewRouter(ctrlEmas, ctrlUser, ctrlAuth, ctrlBank, ctrlZakat, ctrlInfaq)
 		router.Init(engine).Run(":8080")
 	},
 }

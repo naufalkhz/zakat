@@ -16,6 +16,7 @@ type router struct {
 	ctrlAuth  controllers.AuthInterface
 	ctrlBank  controllers.BankInterface
 	ctrlZakat controllers.ZakatInterface
+	ctrlInfaq controllers.InfaqInterface
 }
 
 func NewRouter(
@@ -24,6 +25,7 @@ func NewRouter(
 	ctrlAuth controllers.AuthInterface,
 	ctrlBank controllers.BankInterface,
 	ctrlZakat controllers.ZakatInterface,
+	ctrlInfaq controllers.InfaqInterface,
 ) Router {
 	// if ctrlEmas == nil || ctrlLogin == nil {
 	if ctrlEmas == nil {
@@ -36,6 +38,7 @@ func NewRouter(
 		ctrlAuth:  ctrlAuth,
 		ctrlBank:  ctrlBank,
 		ctrlZakat: ctrlZakat,
+		ctrlInfaq: ctrlInfaq,
 	}
 }
 
@@ -66,6 +69,12 @@ func (r *router) Init(e *gin.Engine) *gin.Engine {
 		zakat.POST("/tabungan", r.ctrlZakat.CreateZakatTabungan)
 		zakat.POST("/perdagangan", r.ctrlZakat.CreateZakatPerdagangan)
 		zakat.POST("/emas", r.ctrlZakat.CreateZakatEmas)
+	}
+
+	infaq := v1.Group("/infaq").Use(utils.Auth())
+	{
+		infaq.POST("", r.ctrlInfaq.CreateInfaq)
+		infaq.GET("/list", r.ctrlInfaq.GetListInfaq)
 	}
 
 	return e
