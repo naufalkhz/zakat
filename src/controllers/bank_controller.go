@@ -48,7 +48,7 @@ func (e *bankImplementation) Create(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusCreated, res)
+	utils.SuccessResponse(c, http.StatusOK, res)
 }
 
 func (e *bankImplementation) GetBankById(c *gin.Context) {

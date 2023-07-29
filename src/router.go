@@ -63,6 +63,9 @@ func (r *router) Init(e *gin.Engine) *gin.Engine {
 	zakat := v1.Group("/zakat").Use(utils.Auth())
 	{
 		zakat.POST("/penghasilan", r.ctrlZakat.CreateZakatPenghasilan)
+		zakat.POST("/tabungan", r.ctrlZakat.CreateZakatTabungan)
+		zakat.POST("/perdagangan", r.ctrlZakat.CreateZakatPerdagangan)
+		zakat.POST("/emas", r.ctrlZakat.CreateZakatEmas)
 	}
 
 	return e
