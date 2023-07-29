@@ -33,7 +33,7 @@ func NewUserService(repository repositories.UserRepository) UserService {
 func (e *userService) Get(ctx context.Context) (*models.User, error) {
 	user, err := e.repository.Get(ctx)
 	if err != nil {
-		zap.L().Error("error get harga emas", zap.Error(err))
+		zap.L().Error("error user", zap.Error(err))
 		return nil, err
 	}
 	return user, nil

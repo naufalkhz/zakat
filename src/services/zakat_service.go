@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/naufalkhz/zakat/src/models"
 	"github.com/naufalkhz/zakat/src/repositories"
+	"github.com/naufalkhz/zakat/utils"
+	"github.com/spf13/cast"
 	"go.uber.org/zap"
 )
 
@@ -15,16 +17,17 @@ type ZakatService interface {
 
 type zakatService struct {
 	repository  repositories.ZakatRepository
-	userService userService
-	bankService bankService
-	emasService emasService
+	userService UserService
+	bankService BankService
+	emasService EmasService
 }
 
-func NewZakatService(repository repositories.ZakatRepository, userService userService, bankService bankService) ZakatService {
+func NewZakatService(repository repositories.ZakatRepository, userService UserService, bankService BankService, emasService EmasService) ZakatService {
 	return &zakatService{
 		repository:  repository,
 		userService: userService,
 		bankService: bankService,
+		emasService: emasService,
 	}
 }
 
@@ -53,15 +56,28 @@ func (e *zakatService) CreatePenghasilan(ctx *gin.Context, zakatPenghasilanReq *
 	fmt.Println(bank, emas, user)
 	///////////////// Bikin concurrency dan di pisah /////////////////
 
-	// Calculate zakat
+	zakatPenghasilan := &models.ZakatPenghasilan{
+		KodeRiwayat:          utils.GenerateCode("PHS"),
+		Penghasilan:          zakatPenghasilanReq.Penghasilan,
+		PendapatanLain:       zakatPenghasilanReq.PendapatanLain,
+		PengeluaranKebutuhan: zakatPenghasilanReq.PengeluaranKebutuhan,
+		JenisPenghasilan:     zakatPenghasilanReq.JenisPenghasilan,
 
-	// create struct zakat
-	var zakatPenghasilan *models.ZakatPenghasilan
+		IdUser:    user.ID,
+		EmailUser: user.Email,
+
+		IdBank:     bank.ID,
+		NamaBank:   bank.Nama,
+		AtasNama:   bank.AtasNama,
+		NoRekening: bank.NoRekening,
+		HargaEmas:  emas.Harga,
+		Bayar:      cast.ToFloat64(zakatPenghasilanReq.Penghasilan+zakatPenghasilanReq.PendapatanLain-zakatPenghasilanReq.PengeluaranKebutuhan) * 0.025,
+	}
 
 	res, err := e.repository.CreateZakatPenghasilan(ctx, zakatPenghasilan)
 	if err != nil {
 		zap.L().Error("error create zakatPenghasilan", zap.Error(err))
 		return nil, err
 	}
-	return &models.ZakatPenghasilanResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: models.Bank{}}, nil
+	return &models.ZakatPenghasilanResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
 }
