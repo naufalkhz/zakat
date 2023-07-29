@@ -3,14 +3,17 @@ package services
 import (
 	"context"
 
+	"github.com/gin-gonic/gin"
 	"github.com/naufalkhz/zakat/src/models"
 	"github.com/naufalkhz/zakat/src/repositories"
+	"github.com/naufalkhz/zakat/utils"
 	"go.uber.org/zap"
 )
 
 type InfaqService interface {
-	CreateInfaq(ctx context.Context, zakatPenghasilan *models.Infaq) (*models.Infaq, error)
+	CreateInfaq(ctx context.Context, infaq *models.Infaq) (*models.Infaq, error)
 	GetList(ctx context.Context) ([]*models.Infaq, error)
+	CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest *models.InfaqRiwayatRequest) (*models.TransaksiResponse, error)
 }
 
 type infaqService struct {
@@ -42,4 +45,64 @@ func (e *infaqService) GetList(ctx context.Context) ([]*models.Infaq, error) {
 		return nil, err
 	}
 	return res, nil
+}
+
+func (e *infaqService) CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest *models.InfaqRiwayatRequest) (*models.TransaksiResponse, error) {
+
+	///////////////// Bikin concurrency dan di pisah /////////////////
+	// Get User
+	user, err := e.userService.GetUserSession(ctx)
+	if err != nil {
+		zap.L().Error("error get user session", zap.Error(err))
+		return nil, err
+	}
+	// Get Bank
+	bank, err := e.bankService.GetBankById(ctx, infaqRiwayatRequest.IdBank)
+	if err != nil {
+		zap.L().Error("error get bank", zap.Error(err))
+		return nil, err
+	}
+
+	// Get Infaq
+	infaq, err := e.repository.GetById(ctx, infaqRiwayatRequest.IdInfaq)
+	if err != nil {
+		zap.L().Error("error get infaq", zap.Error(err))
+		return nil, err
+	}
+	///////////////// Bikin concurrency dan di pisah /////////////////
+
+	infaqRiwayat := &models.InfaqRiwayat{
+		KodeRiwayat: utils.GenerateCode("IFQ"),
+		Nominal:     infaqRiwayatRequest.Nominal,
+		Catatan:     infaqRiwayatRequest.Catatan,
+		HambaAllah:  infaqRiwayatRequest.HambaAllah,
+
+		IdUser:   user.ID,
+		NamaUser: user.Nama,
+		Email:    user.Email,
+
+		IdInfaq: infaq.ID,
+		Judul:   infaq.Judul,
+
+		TransaksiBank: models.TransaksiBank{
+			IdBank:     bank.ID,
+			Nama:       bank.Nama,
+			NoRekening: bank.NoRekening,
+			AtasNama:   bank.AtasNama,
+		},
+	}
+
+	res, err := e.repository.CreateInfaqRiwayat(ctx, infaqRiwayat)
+	if err != nil {
+		zap.L().Error("error create infaq riwayat", zap.Error(err))
+		return nil, err
+	}
+
+	// Should handle this when update is failed
+	if err := e.repository.UpdateDanaInfaq(ctx, infaqRiwayatRequest.Nominal, infaq); err != nil {
+		zap.L().Error("error update dana infaq", zap.Error(err))
+		return nil, err
+	}
+
+	return &models.TransaksiResponse{KodeRiwayat: res.KodeRiwayat, Bayar: float64(res.Nominal), Bank: *bank}, nil
 }

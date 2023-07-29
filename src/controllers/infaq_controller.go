@@ -12,6 +12,7 @@ import (
 type InfaqInterface interface {
 	CreateInfaq(c *gin.Context)
 	GetListInfaq(c *gin.Context)
+	CreateInfaqRiwayat(c *gin.Context)
 }
 
 type infaqImplementation struct {
@@ -47,4 +48,20 @@ func (e *infaqImplementation) GetListInfaq(c *gin.Context) {
 		return
 	}
 	utils.SuccessResponse(c, http.StatusOK, res)
+}
+
+func (e *infaqImplementation) CreateInfaqRiwayat(c *gin.Context) {
+	var infaqRequest *models.InfaqRiwayatRequest
+	if err := c.ShouldBindJSON(&infaqRequest); err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	infaqRes, err := e.svc.CreateInfaqRiwayat(c, infaqRequest)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, infaqRes)
 }
