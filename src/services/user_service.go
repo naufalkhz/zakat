@@ -6,9 +6,9 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
+	"github.com/leekchan/accounting"
 	"github.com/naufalkhz/zakat/src/models"
 	"github.com/naufalkhz/zakat/src/repositories"
-	"github.com/spf13/cast"
 	"go.uber.org/zap"
 )
 
@@ -120,6 +120,7 @@ func (e *userService) GetRiwayatPembayaranUser(ctx *gin.Context) (*models.Riwaya
 }
 
 func (e *userService) ExportRiwayatPembayaranUser(ctx *gin.Context) ([]*models.PDF, error) {
+	ac := accounting.Accounting{Symbol: "Rp. ", Thousand: "."}
 	// Get User
 	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
@@ -168,7 +169,7 @@ func (e *userService) ExportRiwayatPembayaranUser(ctx *gin.Context) ([]*models.P
 		data = append(data, &models.PDF{
 			KodeRiwayat: v.KodeRiwayat,
 			Tipe:        "Zakat Penghasilan",
-			Bayar:       cast.ToString(v.Bayar),
+			Bayar:       ac.FormatMoney(v.Bayar),
 			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
@@ -176,7 +177,7 @@ func (e *userService) ExportRiwayatPembayaranUser(ctx *gin.Context) ([]*models.P
 		data = append(data, &models.PDF{
 			KodeRiwayat: v.KodeRiwayat,
 			Tipe:        "Zakat Emas",
-			Bayar:       cast.ToString(v.Bayar),
+			Bayar:       ac.FormatMoney(v.Bayar),
 			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
@@ -184,7 +185,7 @@ func (e *userService) ExportRiwayatPembayaranUser(ctx *gin.Context) ([]*models.P
 		data = append(data, &models.PDF{
 			KodeRiwayat: v.KodeRiwayat,
 			Tipe:        "Zakat Perdagangan",
-			Bayar:       cast.ToString(v.Bayar),
+			Bayar:       ac.FormatMoney(v.Bayar),
 			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
@@ -192,7 +193,7 @@ func (e *userService) ExportRiwayatPembayaranUser(ctx *gin.Context) ([]*models.P
 		data = append(data, &models.PDF{
 			KodeRiwayat: v.KodeRiwayat,
 			Tipe:        "Zakat Tabungan",
-			Bayar:       cast.ToString(v.Bayar),
+			Bayar:       ac.FormatMoney(v.Bayar),
 			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
@@ -200,7 +201,7 @@ func (e *userService) ExportRiwayatPembayaranUser(ctx *gin.Context) ([]*models.P
 		data = append(data, &models.PDF{
 			KodeRiwayat: v.KodeRiwayat,
 			Tipe:        v.Judul,
-			Bayar:       cast.ToString(v.Nominal),
+			Bayar:       ac.FormatMoney(v.Nominal),
 			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
