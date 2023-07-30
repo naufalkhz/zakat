@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/naufalkhz/zakat/src/models"
@@ -133,8 +132,6 @@ func (e *infaqService) GetRiwayatInfaqLastLimit(ctx *gin.Context, limit int) ([]
 			val.NamaUser = "Hamba Allah"
 		}
 	}
-
-	fmt.Println(infaqRiwayatLastLimit)
 
 	return infaqRiwayatLastLimit, nil
 }
