@@ -2,10 +2,13 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"sort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/naufalkhz/zakat/src/models"
 	"github.com/naufalkhz/zakat/src/repositories"
+	"github.com/spf13/cast"
 	"go.uber.org/zap"
 )
 
@@ -14,6 +17,7 @@ type UserService interface {
 	Create(ctx context.Context, user *models.User) (*models.User, error)
 	Edit(ctx *gin.Context, user *models.User) (*models.User, error)
 	GetRiwayatPembayaranUser(ctx *gin.Context) (*models.RiwayatPembayaranResponse, error)
+	ExportRiwayatPembayaranUser(ctx *gin.Context) ([]*models.PDF, error)
 }
 
 type userService struct {
@@ -113,4 +117,97 @@ func (e *userService) GetRiwayatPembayaranUser(ctx *gin.Context) (*models.Riwaya
 	///////////// TODO: Buat ini parallel //////////////////
 
 	return &models.RiwayatPembayaranResponse{ZakatPenghasilan: zakatPenghasilan, ZakatTabungan: zakatTabungan, ZakatPerdagangan: zakatPerdagangan, ZakatEmas: zakatEmas, InfaqRiwayat: infaqRiwayat}, nil
+}
+
+func (e *userService) ExportRiwayatPembayaranUser(ctx *gin.Context) ([]*models.PDF, error) {
+	// Get User
+	user, err := e.authService.GetUserSession(ctx)
+	if err != nil {
+		zap.L().Error("error get user session", zap.Error(err))
+		return nil, err
+	}
+
+	///////////// TODO: Buat ini parallel //////////////////
+	zakatPenghasilan, err := e.zakatService.GetRiwayatZakatPenghasilanByUserId(ctx, user.ID)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat penghasilan", zap.Error(err))
+		return nil, err
+	}
+
+	zakatTabungan, err := e.zakatService.GetRiwayatZakatTabunganByUserId(ctx, user.ID)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat tabungan", zap.Error(err))
+		return nil, err
+	}
+
+	zakatPerdagangan, err := e.zakatService.GetRiwayatZakatPerdaganganByUserId(ctx, user.ID)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
+		return nil, err
+	}
+
+	zakatEmas, err := e.zakatService.GetRiwayatZakatEmasByUserId(ctx, user.ID)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
+		return nil, err
+	}
+
+	infaqRiwayat, err := e.infaqService.GetRiwayatInfaqByUserId(ctx, user.ID)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
+		return nil, err
+	}
+
+	///////////// TODO: Buat ini parallel //////////////////
+
+	fmt.Println(zakatEmas, zakatPerdagangan, zakatTabungan, infaqRiwayat)
+
+	var data []*models.PDF
+
+	for _, v := range zakatPenghasilan {
+		data = append(data, &models.PDF{
+			KodeRiwayat: v.KodeRiwayat,
+			Tipe:        "Zakat Penghasilan",
+			Bayar:       cast.ToString(v.Bayar),
+			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	for _, v := range zakatEmas {
+		data = append(data, &models.PDF{
+			KodeRiwayat: v.KodeRiwayat,
+			Tipe:        "Zakat Emas",
+			Bayar:       cast.ToString(v.Bayar),
+			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	for _, v := range zakatPerdagangan {
+		data = append(data, &models.PDF{
+			KodeRiwayat: v.KodeRiwayat,
+			Tipe:        "Zakat Perdagangan",
+			Bayar:       cast.ToString(v.Bayar),
+			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	for _, v := range zakatTabungan {
+		data = append(data, &models.PDF{
+			KodeRiwayat: v.KodeRiwayat,
+			Tipe:        "Zakat Tabungan",
+			Bayar:       cast.ToString(v.Bayar),
+			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	for _, v := range infaqRiwayat {
+		data = append(data, &models.PDF{
+			KodeRiwayat: v.KodeRiwayat,
+			Tipe:        v.Judul,
+			Bayar:       cast.ToString(v.Nominal),
+			Tanggal:     v.Model.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	sort.Slice(data, func(i, j int) bool {
+		return data[i].Tanggal > data[j].Tanggal
+	})
+
+	return data, nil
 }

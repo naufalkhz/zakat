@@ -1,4 +1,4 @@
-package utils
+package pdf
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"github.com/naufalkhz/zakat/src/models"
 )
 
-func GeneratePDF(data []models.PDF) {
+func GeneratePDF(data []*models.PDF) ([]byte, error) {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 	m.SetPageMargins(20, 10, 20)
 
@@ -21,21 +21,25 @@ func GeneratePDF(data []models.PDF) {
 	buildFooter(m)
 	buildFruitList(m, data)
 
-	curDate := time.Now().Format("2006-01-02")
-	err := m.OutputFileAndClose(fmt.Sprintf("Riwayat_Pembayaran_%s.pdf", curDate))
+	// curDate := time.Now().Format("2006-01-02")
+	// err := m.OutputFileAndClose(fmt.Sprintf("Riwayat_Pembayaran_%s.pdf", curDate))
+	buff, err := m.Output()
 	if err != nil {
 		fmt.Println("⚠️  Could not save PDF:", err)
 		os.Exit(1)
 	}
 
+	byteData := buff.Bytes()
+
 	fmt.Println("PDF saved successfully")
+	return byteData, err
 }
 
 func buildHeading(m pdf.Maroto) {
 	m.RegisterHeader(func() {
 		m.Row(30, func() {
 			m.Col(5, func() {
-				err := m.FileImage("zakat.png", props.Rect{
+				err := m.FileImage("utils/pdf/zakat.png", props.Rect{
 					// Center:  true,
 					Percent: 75,
 				})
@@ -83,7 +87,7 @@ func buildHeading(m pdf.Maroto) {
 
 }
 
-func buildFruitList(m pdf.Maroto, data []models.PDF) {
+func buildFruitList(m pdf.Maroto, data []*models.PDF) {
 	headings := getHeadings()
 	// contents := [][]string{
 	// 	{"1", "20230801/ZKT/7283264", "Zakat Penghasilan", "Rp.800.000", "02 Juni 2023"},
@@ -111,13 +115,13 @@ func buildFruitList(m pdf.Maroto, data []models.PDF) {
 	m.TableList(headings, data2dString, props.TableList{
 		HeaderProp: props.TableListContent{
 			Size:      10,
-			GridSizes: []uint{1, 4, 3, 2, 2},
+			GridSizes: []uint{4, 3, 2, 3},
 		},
 		ContentProp: props.TableListContent{
 			Size:      9,
-			GridSizes: []uint{1, 4, 3, 2, 2},
+			GridSizes: []uint{4, 3, 2, 3},
 		},
-		Align:                  consts.Left,
+		Align:                  consts.Center,
 		VerticalContentPadding: 5,
 		AlternatedBackground:   &purpleColor,
 		HeaderContentSpace:     2,
@@ -157,7 +161,7 @@ func buildFooter(m pdf.Maroto) {
 }
 
 func getHeadings() []string {
-	return []string{"No", "Kode Riwayat", "Tipe", "Bayar", "Tanggal"}
+	return []string{"Kode Riwayat", "Tipe", "Bayar", "Tanggal"}
 }
 
 // Colours
@@ -186,7 +190,7 @@ func getGreyColor() color.Color {
 	}
 }
 
-func dataPdf2D(data []models.PDF) [][]string {
+func dataPdf2D(data []*models.PDF) [][]string {
 	// Tentukan ukuran array dua dimensi berdasarkan jumlah data dalam data
 	numRows := len(data)
 	// numCols := 5 // Karena ada 5 field dalam struct DataPDF
@@ -197,7 +201,6 @@ func dataPdf2D(data []models.PDF) [][]string {
 	// Masukkan data dari data ke array dua dimensi
 	for i, data := range data {
 		array2D[i] = []string{
-			fmt.Sprintf("%d", data.No),
 			data.KodeRiwayat,
 			data.Tipe,
 			data.Bayar,

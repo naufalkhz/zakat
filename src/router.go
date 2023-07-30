@@ -54,10 +54,13 @@ func (r *router) Init(e *gin.Engine) *gin.Engine {
 	v1.GET("/emas", r.ctrlEmas.Get)
 
 	v1.POST("/user", r.ctrlUser.Create)
+	// v1.GET("/user/export", r.ctrlUser.ExportRiwayaPembayaranUser)
+
 	user := v1.Group("/user").Use(utils.Auth())
 	{
 		user.PUT("", r.ctrlUser.Edit)
 		user.GET("/riwayat", r.ctrlUser.GetRiwayatPembayaranUser)
+		user.GET("/export", r.ctrlUser.ExportRiwayaPembayaranUser)
 	}
 
 	bank := v1.Group("/bank").Use(utils.Auth())

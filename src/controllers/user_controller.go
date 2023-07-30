@@ -7,6 +7,7 @@ import (
 	"github.com/naufalkhz/zakat/src/models"
 	"github.com/naufalkhz/zakat/src/services"
 	"github.com/naufalkhz/zakat/utils"
+	"github.com/naufalkhz/zakat/utils/pdf"
 )
 
 type UserInterface interface {
@@ -14,6 +15,7 @@ type UserInterface interface {
 	Create(c *gin.Context)
 	Edit(c *gin.Context)
 	GetRiwayatPembayaranUser(c *gin.Context)
+	ExportRiwayaPembayaranUser(c *gin.Context)
 }
 
 type userImplementation struct {
@@ -74,9 +76,12 @@ func (e *userImplementation) GetRiwayatPembayaranUser(c *gin.Context) {
 }
 
 func (e *userImplementation) ExportRiwayaPembayaranUser(c *gin.Context) {
-	riwayatUser, err := e.svc.GetRiwayatPembayaranUser(c)
+	riwayatUser, err := e.svc.ExportRiwayatPembayaranUser(c)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, nil)
 	}
-	utils.SuccessResponse(c, http.StatusOK, riwayatUser)
+
+	byteFile, _ := pdf.GeneratePDF(riwayatUser)
+	c.Header("Content-Disposition", "attachment; filename=udin.pdf")
+	c.Data(http.StatusOK, "application/pdf", byteFile)
 }
