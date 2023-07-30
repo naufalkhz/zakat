@@ -36,7 +36,7 @@ type InfaqRiwayat struct {
 type InfaqRiwayatRequest struct {
 	Nominal    int64  `json:"nominal" binding:"required"`
 	Catatan    string `json:"catatan"`
-	HambaAllah bool   `json:"hamba_allah" binding:"required"`
+	HambaAllah bool   `json:"hamba_allah"`
 	IdInfaq    uint   `json:"id_infaq" binding:"required"`
 	IdBank     uint   `json:"id_bank" binding:"required"`
 }

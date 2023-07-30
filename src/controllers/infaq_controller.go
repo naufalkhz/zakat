@@ -7,12 +7,14 @@ import (
 	"github.com/naufalkhz/zakat/src/models"
 	"github.com/naufalkhz/zakat/src/services"
 	"github.com/naufalkhz/zakat/utils"
+	"github.com/spf13/cast"
 )
 
 type InfaqInterface interface {
 	CreateInfaq(c *gin.Context)
 	GetListInfaq(c *gin.Context)
 	CreateInfaqRiwayat(c *gin.Context)
+	GetListInfaqRiwayatLastLimit(c *gin.Context)
 }
 
 type infaqImplementation struct {
@@ -64,4 +66,17 @@ func (e *infaqImplementation) CreateInfaqRiwayat(c *gin.Context) {
 	}
 
 	utils.SuccessResponse(c, http.StatusOK, infaqRes)
+}
+
+func (e *infaqImplementation) GetListInfaqRiwayatLastLimit(c *gin.Context) {
+	limit := cast.ToInt(c.Param("limit"))
+	if limit > 30 {
+		limit = 30
+	}
+	res, err := e.svc.GetRiwayatInfaqLastLimit(c, limit)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	utils.SuccessResponse(c, http.StatusOK, res)
 }

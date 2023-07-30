@@ -14,6 +14,7 @@ type InfaqRepository interface {
 	CreateInfaqRiwayat(ctx context.Context, infaqRiwayat *models.InfaqRiwayat) (*models.InfaqRiwayat, error)
 	GetById(ctx context.Context, idInfaq uint) (*models.Infaq, error)
 	GetInfaqRiwayat(ctx context.Context, idUser uint) ([]*models.InfaqRiwayat, error)
+	GetInfaqRiwayatLastLimit(ctx context.Context, limit int) ([]*models.InfaqRiwayat, error)
 }
 
 type infaqRepository struct {
@@ -54,5 +55,11 @@ func (r *infaqRepository) UpdateDanaInfaq(ctx context.Context, nominal int64, in
 func (r *infaqRepository) GetInfaqRiwayat(ctx context.Context, idUser uint) ([]*models.InfaqRiwayat, error) {
 	var infaqRiwayat []*models.InfaqRiwayat
 	tx := r.db.Debug().WithContext(ctx).Where("id_user = ?", idUser).Find(&infaqRiwayat)
+	return infaqRiwayat, tx.Error
+}
+
+func (r *infaqRepository) GetInfaqRiwayatLastLimit(ctx context.Context, limit int) ([]*models.InfaqRiwayat, error) {
+	var infaqRiwayat []*models.InfaqRiwayat
+	tx := r.db.Debug().WithContext(ctx).Limit(limit).Order("id desc").Find(&infaqRiwayat)
 	return infaqRiwayat, tx.Error
 }

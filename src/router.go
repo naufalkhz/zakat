@@ -80,6 +80,7 @@ func (r *router) Init(e *gin.Engine) *gin.Engine {
 		infaq.POST("", r.ctrlInfaq.CreateInfaq)
 		infaq.GET("/list", r.ctrlInfaq.GetListInfaq)
 		infaq.POST("/payment", r.ctrlInfaq.CreateInfaqRiwayat)
+		infaq.GET("/riwayat/:limit", r.ctrlInfaq.GetListInfaqRiwayatLastLimit)
 	}
 
 	return e

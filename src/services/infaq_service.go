@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/naufalkhz/zakat/src/models"
@@ -15,6 +16,7 @@ type InfaqService interface {
 	GetList(ctx context.Context) ([]*models.Infaq, error)
 	CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest *models.InfaqRiwayatRequest) (*models.TransaksiResponse, error)
 	GetRiwayatInfaqByUserId(ctx *gin.Context, idUser uint) ([]*models.InfaqRiwayat, error)
+	GetRiwayatInfaqLastLimit(ctx *gin.Context, limit int) ([]*models.InfaqRiwayat, error)
 }
 
 type infaqService struct {
@@ -116,4 +118,23 @@ func (e *infaqService) GetRiwayatInfaqByUserId(ctx *gin.Context, idUser uint) ([
 	}
 
 	return infaqRiwayat, nil
+}
+
+func (e *infaqService) GetRiwayatInfaqLastLimit(ctx *gin.Context, limit int) ([]*models.InfaqRiwayat, error) {
+	infaqRiwayatLastLimit, err := e.repository.GetInfaqRiwayatLastLimit(ctx, limit)
+	if err != nil {
+		zap.L().Error("error get infaq riwayat last limit", zap.Error(err))
+		return nil, err
+	}
+
+	// TODO: add filter nama when hamba allah is true change the name to hamba allah
+	for _, val := range infaqRiwayatLastLimit {
+		if val.HambaAllah {
+			val.NamaUser = "Hamba Allah"
+		}
+	}
+
+	fmt.Println(infaqRiwayatLastLimit)
+
+	return infaqRiwayatLastLimit, nil
 }
