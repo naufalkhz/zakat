@@ -12,7 +12,7 @@ type ZakatPenghasilan struct {
 	PengeluaranKebutuhan int64   `json:"pengeluaran_kebutuhan"`
 	JenisPenghasilan     string  `json:"jenis_penghasilan"`
 	Bayar                float64 `json:"bayar"`
-	TransaksiInfo
+	PembayaranInfo
 }
 
 type ZakatPenghasilanRequest struct {

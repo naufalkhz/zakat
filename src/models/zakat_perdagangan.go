@@ -14,7 +14,7 @@ type ZakatPerdagangan struct {
 	Utang      int64   `json:"utang"`
 	Kerugian   int64   `json:"kerugian"`
 	Bayar      float64 `json:"bayar"`
-	TransaksiInfo
+	PembayaranInfo
 }
 
 type ZakatPerdaganganRequest struct {

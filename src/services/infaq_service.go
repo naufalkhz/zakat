@@ -13,7 +13,7 @@ import (
 type InfaqService interface {
 	CreateInfaq(ctx context.Context, infaq *models.Infaq) (*models.Infaq, error)
 	GetList(ctx context.Context) ([]*models.Infaq, error)
-	CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest *models.InfaqRiwayatRequest) (*models.TransaksiResponse, error)
+	CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest *models.InfaqRiwayatRequest) (*models.PembayaranResponse, error)
 	GetRiwayatInfaqByUserId(ctx *gin.Context, idUser uint) ([]*models.InfaqRiwayat, error)
 	GetRiwayatInfaqLastLimit(ctx *gin.Context, limit int) ([]*models.InfaqRiwayat, error)
 }
@@ -49,7 +49,7 @@ func (e *infaqService) GetList(ctx context.Context) ([]*models.Infaq, error) {
 	return res, nil
 }
 
-func (e *infaqService) CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest *models.InfaqRiwayatRequest) (*models.TransaksiResponse, error) {
+func (e *infaqService) CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest *models.InfaqRiwayatRequest) (*models.PembayaranResponse, error) {
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
@@ -86,7 +86,7 @@ func (e *infaqService) CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest 
 		IdInfaq: infaq.ID,
 		Judul:   infaq.Judul,
 
-		TransaksiBank: models.TransaksiBank{
+		PembayaranBank: models.PembayaranBank{
 			IdBank:     bank.ID,
 			Nama:       bank.NamaBank,
 			NoRekening: bank.NoRekening,
@@ -106,7 +106,7 @@ func (e *infaqService) CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest 
 		return nil, err
 	}
 
-	return &models.TransaksiResponse{KodeRiwayat: res.KodeRiwayat, Bayar: float64(res.Nominal), Bank: *bank}, nil
+	return &models.PembayaranResponse{KodeRiwayat: res.KodeRiwayat, Bayar: float64(res.Nominal), Bank: *bank}, nil
 }
 
 func (e *infaqService) GetRiwayatInfaqByUserId(ctx *gin.Context, idUser uint) ([]*models.InfaqRiwayat, error) {

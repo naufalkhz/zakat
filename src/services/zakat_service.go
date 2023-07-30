@@ -10,10 +10,10 @@ import (
 )
 
 type ZakatService interface {
-	CreatePenghasilan(ctx *gin.Context, zakatPenghasilan *models.ZakatPenghasilanRequest) (*models.TransaksiResponse, error)
-	CreateTabungan(ctx *gin.Context, zakatTabungan *models.ZakatTabunganRequest) (*models.TransaksiResponse, error)
-	CreatePerdagangan(ctx *gin.Context, zakatPerdagangan *models.ZakatPerdaganganRequest) (*models.TransaksiResponse, error)
-	CreateEmas(ctx *gin.Context, zakatEmas *models.ZakatEmasRequest) (*models.TransaksiResponse, error)
+	CreatePenghasilan(ctx *gin.Context, zakatPenghasilan *models.ZakatPenghasilanRequest) (*models.PembayaranResponse, error)
+	CreateTabungan(ctx *gin.Context, zakatTabungan *models.ZakatTabunganRequest) (*models.PembayaranResponse, error)
+	CreatePerdagangan(ctx *gin.Context, zakatPerdagangan *models.ZakatPerdaganganRequest) (*models.PembayaranResponse, error)
+	CreateEmas(ctx *gin.Context, zakatEmas *models.ZakatEmasRequest) (*models.PembayaranResponse, error)
 
 	GetRiwayatZakatPenghasilanByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatPenghasilan, error)
 	GetRiwayatZakatTabunganByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatTabungan, error)
@@ -37,7 +37,7 @@ func NewZakatService(repository repositories.ZakatRepository, authService AuthSe
 	}
 }
 
-func (e *zakatService) CreatePenghasilan(ctx *gin.Context, zakatPenghasilanReq *models.ZakatPenghasilanRequest) (*models.TransaksiResponse, error) {
+func (e *zakatService) CreatePenghasilan(ctx *gin.Context, zakatPenghasilanReq *models.ZakatPenghasilanRequest) (*models.PembayaranResponse, error) {
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
@@ -68,12 +68,12 @@ func (e *zakatService) CreatePenghasilan(ctx *gin.Context, zakatPenghasilanReq *
 		JenisPenghasilan:     zakatPenghasilanReq.JenisPenghasilan,
 		Bayar:                cast.ToFloat64(zakatPenghasilanReq.Penghasilan+zakatPenghasilanReq.PendapatanLain-zakatPenghasilanReq.PengeluaranKebutuhan) * 0.025,
 
-		TransaksiInfo: models.TransaksiInfo{
+		PembayaranInfo: models.PembayaranInfo{
 			IdUser:    user.ID,
 			NamaUser:  user.Nama,
 			EmailUser: user.Email,
 			HargaEmas: emas.Harga,
-			TransaksiBank: models.TransaksiBank{
+			PembayaranBank: models.PembayaranBank{
 				IdBank:     bank.ID,
 				Nama:       bank.NamaBank,
 				AtasNama:   bank.AtasNama,
@@ -87,10 +87,10 @@ func (e *zakatService) CreatePenghasilan(ctx *gin.Context, zakatPenghasilanReq *
 		zap.L().Error("error create zakat penghasilan", zap.Error(err))
 		return nil, err
 	}
-	return &models.TransaksiResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
+	return &models.PembayaranResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
 }
 
-func (e *zakatService) CreateTabungan(ctx *gin.Context, zakatTabunganReq *models.ZakatTabunganRequest) (*models.TransaksiResponse, error) {
+func (e *zakatService) CreateTabungan(ctx *gin.Context, zakatTabunganReq *models.ZakatTabunganRequest) (*models.PembayaranResponse, error) {
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
@@ -119,12 +119,12 @@ func (e *zakatService) CreateTabungan(ctx *gin.Context, zakatTabunganReq *models
 		Bunga:         zakatTabunganReq.Bunga,
 		Bayar:         cast.ToFloat64(zakatTabunganReq.SaldoTabungan-zakatTabunganReq.Bunga) * 0.025,
 
-		TransaksiInfo: models.TransaksiInfo{
+		PembayaranInfo: models.PembayaranInfo{
 			IdUser:    user.ID,
 			NamaUser:  user.Nama,
 			EmailUser: user.Email,
 			HargaEmas: emas.Harga,
-			TransaksiBank: models.TransaksiBank{
+			PembayaranBank: models.PembayaranBank{
 				IdBank:     bank.ID,
 				Nama:       bank.NamaBank,
 				AtasNama:   bank.AtasNama,
@@ -138,10 +138,10 @@ func (e *zakatService) CreateTabungan(ctx *gin.Context, zakatTabunganReq *models
 		zap.L().Error("error create zakat tabungan", zap.Error(err))
 		return nil, err
 	}
-	return &models.TransaksiResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
+	return &models.PembayaranResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
 }
 
-func (e *zakatService) CreatePerdagangan(ctx *gin.Context, zakatPerdaganganReq *models.ZakatPerdaganganRequest) (*models.TransaksiResponse, error) {
+func (e *zakatService) CreatePerdagangan(ctx *gin.Context, zakatPerdaganganReq *models.ZakatPerdaganganRequest) (*models.PembayaranResponse, error) {
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
@@ -174,12 +174,12 @@ func (e *zakatService) CreatePerdagangan(ctx *gin.Context, zakatPerdaganganReq *
 
 		Bayar: cast.ToFloat64(zakatPerdaganganReq.Modal+zakatPerdaganganReq.Keuntungan+zakatPerdaganganReq.Piutang-zakatPerdaganganReq.Utang-zakatPerdaganganReq.Kerugian) * 0.025,
 
-		TransaksiInfo: models.TransaksiInfo{
+		PembayaranInfo: models.PembayaranInfo{
 			IdUser:    user.ID,
 			NamaUser:  user.Nama,
 			EmailUser: user.Email,
 			HargaEmas: emas.Harga,
-			TransaksiBank: models.TransaksiBank{
+			PembayaranBank: models.PembayaranBank{
 				IdBank:     bank.ID,
 				Nama:       bank.NamaBank,
 				AtasNama:   bank.AtasNama,
@@ -193,10 +193,10 @@ func (e *zakatService) CreatePerdagangan(ctx *gin.Context, zakatPerdaganganReq *
 		zap.L().Error("error create zakat perdagangan", zap.Error(err))
 		return nil, err
 	}
-	return &models.TransaksiResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
+	return &models.PembayaranResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
 }
 
-func (e *zakatService) CreateEmas(ctx *gin.Context, ZakatEmasReq *models.ZakatEmasRequest) (*models.TransaksiResponse, error) {
+func (e *zakatService) CreateEmas(ctx *gin.Context, ZakatEmasReq *models.ZakatEmasRequest) (*models.PembayaranResponse, error) {
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
@@ -224,12 +224,12 @@ func (e *zakatService) CreateEmas(ctx *gin.Context, ZakatEmasReq *models.ZakatEm
 		Emas:        ZakatEmasReq.Emas,
 		Bayar:       cast.ToFloat64(ZakatEmasReq.Emas*emas.Harga) * 0.025,
 
-		TransaksiInfo: models.TransaksiInfo{
+		PembayaranInfo: models.PembayaranInfo{
 			IdUser:    user.ID,
 			NamaUser:  user.Nama,
 			EmailUser: user.Email,
 			HargaEmas: emas.Harga,
-			TransaksiBank: models.TransaksiBank{
+			PembayaranBank: models.PembayaranBank{
 				IdBank:     bank.ID,
 				Nama:       bank.NamaBank,
 				AtasNama:   bank.AtasNama,
@@ -243,7 +243,7 @@ func (e *zakatService) CreateEmas(ctx *gin.Context, ZakatEmasReq *models.ZakatEm
 		zap.L().Error("error create zakat emas", zap.Error(err))
 		return nil, err
 	}
-	return &models.TransaksiResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
+	return &models.PembayaranResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
 }
 
 func (e *zakatService) GetRiwayatZakatPenghasilanByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatPenghasilan, error) {

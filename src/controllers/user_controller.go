@@ -13,7 +13,7 @@ type UserInterface interface {
 	Get(c *gin.Context)
 	Create(c *gin.Context)
 	Edit(c *gin.Context)
-	GetRiwayatUser(c *gin.Context)
+	GetRiwayatPembayaranUser(c *gin.Context)
 }
 
 type userImplementation struct {
@@ -65,8 +65,16 @@ func (e *userImplementation) Edit(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, user)
 }
 
-func (e *userImplementation) GetRiwayatUser(c *gin.Context) {
-	riwayatUser, err := e.svc.GetRiwayatUser(c)
+func (e *userImplementation) GetRiwayatPembayaranUser(c *gin.Context) {
+	riwayatUser, err := e.svc.GetRiwayatPembayaranUser(c)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, nil)
+	}
+	utils.SuccessResponse(c, http.StatusOK, riwayatUser)
+}
+
+func (e *userImplementation) ExportRiwayaPembayaranUser(c *gin.Context) {
+	riwayatUser, err := e.svc.GetRiwayatPembayaranUser(c)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, nil)
 	}

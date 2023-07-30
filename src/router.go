@@ -57,7 +57,7 @@ func (r *router) Init(e *gin.Engine) *gin.Engine {
 	user := v1.Group("/user").Use(utils.Auth())
 	{
 		user.PUT("", r.ctrlUser.Edit)
-		user.GET("/riwayat", r.ctrlUser.GetRiwayatUser)
+		user.GET("/riwayat", r.ctrlUser.GetRiwayatPembayaranUser)
 	}
 
 	bank := v1.Group("/bank").Use(utils.Auth())

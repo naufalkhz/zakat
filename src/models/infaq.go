@@ -30,7 +30,7 @@ type InfaqRiwayat struct {
 	IdUser   uint   `json:"id_user"`
 	NamaUser string `json:"nama_user"`
 	Email    string `json:"email"`
-	TransaksiBank
+	PembayaranBank
 }
 
 type InfaqRiwayatRequest struct {

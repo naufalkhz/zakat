@@ -10,7 +10,7 @@ type ZakatTabungan struct {
 	SaldoTabungan int64   `json:"saldo_tabungan"`
 	Bunga         int64   `json:"bunga"`
 	Bayar         float64 `json:"bayar"`
-	TransaksiInfo
+	PembayaranInfo
 }
 
 type ZakatTabunganRequest struct {

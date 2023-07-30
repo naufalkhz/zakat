@@ -9,7 +9,7 @@ type ZakatEmas struct {
 	KodeRiwayat string  `json:"kode_riwayat" gorm:"unique"`
 	Emas        int64   `json:"emas"`
 	Bayar       float64 `json:"bayar"`
-	TransaksiInfo
+	PembayaranInfo
 }
 
 type ZakatEmasRequest struct {

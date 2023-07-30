@@ -1,6 +1,6 @@
 package models
 
-type RiwayatTransaksiResponse struct {
+type RiwayatPembayaranResponse struct {
 	ZakatPenghasilan []*ZakatPenghasilan `json:"zakat_penghasilan"`
 	ZakatTabungan    []*ZakatTabungan    `json:"zakat_tabungan"`
 	ZakatPerdagangan []*ZakatPerdagangan `json:"zakat_perdagangan"`

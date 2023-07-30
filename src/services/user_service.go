@@ -13,7 +13,7 @@ type UserService interface {
 	Get(ctx context.Context) (*models.User, error)
 	Create(ctx context.Context, user *models.User) (*models.User, error)
 	Edit(ctx *gin.Context, user *models.User) (*models.User, error)
-	GetRiwayatUser(ctx *gin.Context) (*models.RiwayatTransaksiResponse, error)
+	GetRiwayatPembayaranUser(ctx *gin.Context) (*models.RiwayatPembayaranResponse, error)
 }
 
 type userService struct {
@@ -71,7 +71,7 @@ func (e *userService) Edit(ctx *gin.Context, userReq *models.User) (*models.User
 	return res, nil
 }
 
-func (e *userService) GetRiwayatUser(ctx *gin.Context) (*models.RiwayatTransaksiResponse, error) {
+func (e *userService) GetRiwayatPembayaranUser(ctx *gin.Context) (*models.RiwayatPembayaranResponse, error) {
 	// Get User
 	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
@@ -112,5 +112,5 @@ func (e *userService) GetRiwayatUser(ctx *gin.Context) (*models.RiwayatTransaksi
 
 	///////////// TODO: Buat ini parallel //////////////////
 
-	return &models.RiwayatTransaksiResponse{ZakatPenghasilan: zakatPenghasilan, ZakatTabungan: zakatTabungan, ZakatPerdagangan: zakatPerdagangan, ZakatEmas: zakatEmas, InfaqRiwayat: infaqRiwayat}, nil
+	return &models.RiwayatPembayaranResponse{ZakatPenghasilan: zakatPenghasilan, ZakatTabungan: zakatTabungan, ZakatPerdagangan: zakatPerdagangan, ZakatEmas: zakatEmas, InfaqRiwayat: infaqRiwayat}, nil
 }
