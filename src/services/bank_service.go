@@ -48,8 +48,8 @@ func (e *bankService) GetBankById(ctx context.Context, idBank uint) (*models.Ban
 		return nil, err
 	}
 	if res.ID == 0 {
-		zap.L().Error("id bank found")
-		return nil, fmt.Errorf("id bank found")
+		zap.L().Error("id bank not found")
+		return nil, fmt.Errorf("id bank not found")
 	}
 	return res, nil
 }

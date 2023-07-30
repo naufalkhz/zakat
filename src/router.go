@@ -46,6 +46,10 @@ func (r *router) Init(e *gin.Engine) *gin.Engine {
 	v1 := e.Group("/v1")
 
 	v1.POST("/auth/login", r.ctrlAuth.SignIn)
+	auth := v1.Group("/auth").Use(utils.Auth())
+	{
+		auth.GET("/me", r.ctrlAuth.GetUserSessionRest)
+	}
 
 	v1.GET("/emas", r.ctrlEmas.Get)
 
@@ -53,7 +57,7 @@ func (r *router) Init(e *gin.Engine) *gin.Engine {
 	user := v1.Group("/user").Use(utils.Auth())
 	{
 		user.PUT("", r.ctrlUser.Edit)
-		user.GET("", r.ctrlUser.GetUserSessionRest)
+		user.GET("/riwayat", r.ctrlUser.GetRiwayatUser)
 	}
 
 	bank := v1.Group("/bank").Use(utils.Auth())
@@ -80,10 +84,3 @@ func (r *router) Init(e *gin.Engine) *gin.Engine {
 
 	return e
 }
-
-// func test() {
-// 	svcEmas := services.NewEmasService()
-// 	ctrlEmas := controllers.NewEmasInterface(svcEmas)
-// 	router := NewRouter(ctrlEmas, controllers.NewLoginService())
-// 	router.Init(gin.Default())
-// }

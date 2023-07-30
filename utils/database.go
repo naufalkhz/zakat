@@ -9,8 +9,6 @@ import (
 )
 
 func GetConnDB(connString string) (*gorm.DB, error) {
-	// connString := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), os.Getenv("DB_NAME"))
-
 	conn, err := gorm.Open(mysql.Dialector{
 		Config: &mysql.Config{
 			DSN:               connString,

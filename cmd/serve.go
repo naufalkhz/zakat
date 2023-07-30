@@ -60,11 +60,11 @@ var serveCmd = &cobra.Command{
 
 		// Service
 		serviceEmas := services.NewEmasService(gatewayEmas, repositoryEmas)
-		serviceUser := services.NewUserService(repositoryUser)
 		serviceAuth := services.NewAuthService(repositoryAuth)
 		serviceBank := services.NewBankService(repositoryBank)
-		serviceZakat := services.NewZakatService(repositoryZakat, serviceUser, serviceBank, serviceEmas)
-		serviceInfaq := services.NewInfaqService(repositoryInfaq, serviceUser, serviceBank)
+		serviceZakat := services.NewZakatService(repositoryZakat, serviceAuth, serviceBank, serviceEmas)
+		serviceInfaq := services.NewInfaqService(repositoryInfaq, serviceAuth, serviceBank)
+		serviceUser := services.NewUserService(repositoryUser, serviceAuth, serviceZakat, serviceInfaq)
 
 		// Controller
 		ctrlEmas := controllers.NewEmasInterface(serviceEmas)

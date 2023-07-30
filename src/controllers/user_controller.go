@@ -13,7 +13,7 @@ type UserInterface interface {
 	Get(c *gin.Context)
 	Create(c *gin.Context)
 	Edit(c *gin.Context)
-	GetUserSessionRest(c *gin.Context)
+	GetRiwayatUser(c *gin.Context)
 }
 
 type userImplementation struct {
@@ -65,19 +65,10 @@ func (e *userImplementation) Edit(c *gin.Context) {
 	utils.SuccessResponse(c, http.StatusOK, user)
 }
 
-func (e *userImplementation) GetUserSession(c *gin.Context) (*models.User, error) {
-	user, err := e.svc.GetUserSession(c)
-	if err != nil {
-		return nil, err
-	}
-	return user, err
-}
-
-// TODO: Remove this function, just for checking on rest
-func (e *userImplementation) GetUserSessionRest(c *gin.Context) {
-	user, err := e.svc.GetUserSession(c)
+func (e *userImplementation) GetRiwayatUser(c *gin.Context) {
+	riwayatUser, err := e.svc.GetRiwayatUser(c)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusInternalServerError, nil)
 	}
-	utils.SuccessResponse(c, http.StatusOK, user)
+	utils.SuccessResponse(c, http.StatusOK, riwayatUser)
 }

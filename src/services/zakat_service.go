@@ -14,19 +14,24 @@ type ZakatService interface {
 	CreateTabungan(ctx *gin.Context, zakatTabungan *models.ZakatTabunganRequest) (*models.TransaksiResponse, error)
 	CreatePerdagangan(ctx *gin.Context, zakatPerdagangan *models.ZakatPerdaganganRequest) (*models.TransaksiResponse, error)
 	CreateEmas(ctx *gin.Context, zakatEmas *models.ZakatEmasRequest) (*models.TransaksiResponse, error)
+
+	GetRiwayatZakatPenghasilanByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatPenghasilan, error)
+	GetRiwayatZakatTabunganByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatTabungan, error)
+	GetRiwayatZakatPerdaganganByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatPerdagangan, error)
+	GetRiwayatZakatEmasByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatEmas, error)
 }
 
 type zakatService struct {
 	repository  repositories.ZakatRepository
-	userService UserService
+	authService AuthService
 	bankService BankService
 	emasService EmasService
 }
 
-func NewZakatService(repository repositories.ZakatRepository, userService UserService, bankService BankService, emasService EmasService) ZakatService {
+func NewZakatService(repository repositories.ZakatRepository, authService AuthService, bankService BankService, emasService EmasService) ZakatService {
 	return &zakatService{
 		repository:  repository,
-		userService: userService,
+		authService: authService,
 		bankService: bankService,
 		emasService: emasService,
 	}
@@ -36,7 +41,7 @@ func (e *zakatService) CreatePenghasilan(ctx *gin.Context, zakatPenghasilanReq *
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
-	user, err := e.userService.GetUserSession(ctx)
+	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
 		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
@@ -65,11 +70,12 @@ func (e *zakatService) CreatePenghasilan(ctx *gin.Context, zakatPenghasilanReq *
 
 		TransaksiInfo: models.TransaksiInfo{
 			IdUser:    user.ID,
+			NamaUser:  user.Nama,
 			EmailUser: user.Email,
 			HargaEmas: emas.Harga,
 			TransaksiBank: models.TransaksiBank{
 				IdBank:     bank.ID,
-				Nama:       bank.Nama,
+				Nama:       bank.NamaBank,
 				AtasNama:   bank.AtasNama,
 				NoRekening: bank.NoRekening,
 			},
@@ -88,7 +94,7 @@ func (e *zakatService) CreateTabungan(ctx *gin.Context, zakatTabunganReq *models
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
-	user, err := e.userService.GetUserSession(ctx)
+	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
 		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
@@ -115,11 +121,12 @@ func (e *zakatService) CreateTabungan(ctx *gin.Context, zakatTabunganReq *models
 
 		TransaksiInfo: models.TransaksiInfo{
 			IdUser:    user.ID,
+			NamaUser:  user.Nama,
 			EmailUser: user.Email,
 			HargaEmas: emas.Harga,
 			TransaksiBank: models.TransaksiBank{
 				IdBank:     bank.ID,
-				Nama:       bank.Nama,
+				Nama:       bank.NamaBank,
 				AtasNama:   bank.AtasNama,
 				NoRekening: bank.NoRekening,
 			},
@@ -138,7 +145,7 @@ func (e *zakatService) CreatePerdagangan(ctx *gin.Context, zakatPerdaganganReq *
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
-	user, err := e.userService.GetUserSession(ctx)
+	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
 		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
@@ -169,11 +176,12 @@ func (e *zakatService) CreatePerdagangan(ctx *gin.Context, zakatPerdaganganReq *
 
 		TransaksiInfo: models.TransaksiInfo{
 			IdUser:    user.ID,
+			NamaUser:  user.Nama,
 			EmailUser: user.Email,
 			HargaEmas: emas.Harga,
 			TransaksiBank: models.TransaksiBank{
 				IdBank:     bank.ID,
-				Nama:       bank.Nama,
+				Nama:       bank.NamaBank,
 				AtasNama:   bank.AtasNama,
 				NoRekening: bank.NoRekening,
 			},
@@ -192,7 +200,7 @@ func (e *zakatService) CreateEmas(ctx *gin.Context, ZakatEmasReq *models.ZakatEm
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
-	user, err := e.userService.GetUserSession(ctx)
+	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
 		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
@@ -218,11 +226,12 @@ func (e *zakatService) CreateEmas(ctx *gin.Context, ZakatEmasReq *models.ZakatEm
 
 		TransaksiInfo: models.TransaksiInfo{
 			IdUser:    user.ID,
+			NamaUser:  user.Nama,
 			EmailUser: user.Email,
 			HargaEmas: emas.Harga,
 			TransaksiBank: models.TransaksiBank{
 				IdBank:     bank.ID,
-				Nama:       bank.Nama,
+				Nama:       bank.NamaBank,
 				AtasNama:   bank.AtasNama,
 				NoRekening: bank.NoRekening,
 			},
@@ -235,4 +244,44 @@ func (e *zakatService) CreateEmas(ctx *gin.Context, ZakatEmasReq *models.ZakatEm
 		return nil, err
 	}
 	return &models.TransaksiResponse{KodeRiwayat: res.KodeRiwayat, Bayar: res.Bayar, Bank: *bank}, nil
+}
+
+func (e *zakatService) GetRiwayatZakatPenghasilanByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatPenghasilan, error) {
+	zakatPenghasilan, err := e.repository.GetRiwayatZakatPenghasilan(ctx, idUser)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat penghasilan", zap.Error(err))
+		return nil, err
+	}
+
+	return zakatPenghasilan, nil
+}
+
+func (e *zakatService) GetRiwayatZakatTabunganByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatTabungan, error) {
+	zakatTabungan, err := e.repository.GetRiwayatZakatTabungan(ctx, idUser)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat tabungan", zap.Error(err))
+		return nil, err
+	}
+
+	return zakatTabungan, nil
+}
+
+func (e *zakatService) GetRiwayatZakatPerdaganganByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatPerdagangan, error) {
+	zakatPerdagangan, err := e.repository.GetRiwayatZakatPerdagangan(ctx, idUser)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
+		return nil, err
+	}
+
+	return zakatPerdagangan, nil
+}
+
+func (e *zakatService) GetRiwayatZakatEmasByUserId(ctx *gin.Context, idUser uint) ([]*models.ZakatEmas, error) {
+	zakatEmas, err := e.repository.GetRiwayatZakatEmas(ctx, idUser)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat emas", zap.Error(err))
+		return nil, err
+	}
+
+	return zakatEmas, nil
 }

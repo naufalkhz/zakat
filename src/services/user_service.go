@@ -2,14 +2,10 @@ package services
 
 import (
 	"context"
-	"fmt"
-	"os"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/naufalkhz/zakat/src/models"
 	"github.com/naufalkhz/zakat/src/repositories"
-	"github.com/spf13/cast"
 	"go.uber.org/zap"
 )
 
@@ -17,16 +13,22 @@ type UserService interface {
 	Get(ctx context.Context) (*models.User, error)
 	Create(ctx context.Context, user *models.User) (*models.User, error)
 	Edit(ctx *gin.Context, user *models.User) (*models.User, error)
-	GetUserSession(ctx *gin.Context) (*models.User, error)
+	GetRiwayatUser(ctx *gin.Context) (*models.RiwayatTransaksiResponse, error)
 }
 
 type userService struct {
-	repository repositories.UserRepository
+	repository   repositories.UserRepository
+	authService  AuthService
+	zakatService ZakatService
+	infaqService InfaqService
 }
 
-func NewUserService(repository repositories.UserRepository) UserService {
+func NewUserService(repository repositories.UserRepository, authService AuthService, zakatService ZakatService, infaqService InfaqService) UserService {
 	return &userService{
-		repository: repository,
+		repository:   repository,
+		authService:  authService,
+		zakatService: zakatService,
+		infaqService: infaqService,
 	}
 }
 
@@ -55,7 +57,7 @@ func (e *userService) Create(ctx context.Context, user *models.User) (*models.Us
 }
 
 func (e *userService) Edit(ctx *gin.Context, userReq *models.User) (*models.User, error) {
-	userTarget, err := e.GetUserSession(ctx)
+	userTarget, err := e.authService.GetUserSession(ctx)
 	if err != nil {
 		zap.L().Error("failed toget user", zap.Error(err))
 		return nil, err
@@ -69,35 +71,46 @@ func (e *userService) Edit(ctx *gin.Context, userReq *models.User) (*models.User
 	return res, nil
 }
 
-func (e *userService) GetUserSession(ctx *gin.Context) (*models.User, error) {
-	userId, err := getUserId(ctx)
+func (e *userService) GetRiwayatUser(ctx *gin.Context) (*models.RiwayatTransaksiResponse, error) {
+	// Get User
+	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
-		zap.L().Error("failed parse token", zap.Error(err))
+		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
 	}
 
-	user, err := e.repository.GetUserById(ctx, userId)
+	///////////// TODO: Buat ini parallel //////////////////
+	zakatPenghasilan, err := e.zakatService.GetRiwayatZakatPenghasilanByUserId(ctx, user.ID)
 	if err != nil {
+		zap.L().Error("error get riwayat zakat penghasilan", zap.Error(err))
 		return nil, err
 	}
-	return user, nil
-}
 
-func getUserId(ctx *gin.Context) (uint, error) {
-	tokenString := ctx.GetHeader("Authorization")
-	claims := jwt.MapClaims{}
-	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		jwtSecret := os.Getenv("JWT_SECRET")
-		return []byte(jwtSecret), nil
-	})
+	zakatTabungan, err := e.zakatService.GetRiwayatZakatTabunganByUserId(ctx, user.ID)
 	if err != nil {
-		return 0, fmt.Errorf("failed parse token")
+		zap.L().Error("error get riwayat zakat tabungan", zap.Error(err))
+		return nil, err
 	}
 
-	var user = make(map[string]interface{})
-	for key, val := range claims {
-		user[key] = val
+	zakatPerdagangan, err := e.zakatService.GetRiwayatZakatPerdaganganByUserId(ctx, user.ID)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
+		return nil, err
 	}
 
-	return cast.ToUint(user["id"]), nil
+	zakatEmas, err := e.zakatService.GetRiwayatZakatEmasByUserId(ctx, user.ID)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
+		return nil, err
+	}
+
+	infaqRiwayat, err := e.infaqService.GetRiwayatInfaqByUserId(ctx, user.ID)
+	if err != nil {
+		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
+		return nil, err
+	}
+
+	///////////// TODO: Buat ini parallel //////////////////
+
+	return &models.RiwayatTransaksiResponse{ZakatPenghasilan: zakatPenghasilan, ZakatTabungan: zakatTabungan, ZakatPerdagangan: zakatPerdagangan, ZakatEmas: zakatEmas, InfaqRiwayat: infaqRiwayat}, nil
 }

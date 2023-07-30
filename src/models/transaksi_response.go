@@ -9,6 +9,7 @@ type TransaksiResponse struct {
 type TransaksiInfo struct {
 	HargaEmas int64  `json:"harga_emas"`
 	IdUser    uint   `json:"id_user"`
+	NamaUser  string `json:"nama_user"`
 	EmailUser string `json:"email_user"`
 	TransaksiBank
 }

@@ -14,18 +14,19 @@ type InfaqService interface {
 	CreateInfaq(ctx context.Context, infaq *models.Infaq) (*models.Infaq, error)
 	GetList(ctx context.Context) ([]*models.Infaq, error)
 	CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest *models.InfaqRiwayatRequest) (*models.TransaksiResponse, error)
+	GetRiwayatInfaqByUserId(ctx *gin.Context, idUser uint) ([]*models.InfaqRiwayat, error)
 }
 
 type infaqService struct {
 	repository  repositories.InfaqRepository
-	userService UserService
+	authService AuthService
 	bankService BankService
 }
 
-func NewInfaqService(repository repositories.InfaqRepository, userService UserService, bankService BankService) InfaqService {
+func NewInfaqService(repository repositories.InfaqRepository, authService AuthService, bankService BankService) InfaqService {
 	return &infaqService{
 		repository:  repository,
-		userService: userService,
+		authService: authService,
 		bankService: bankService,
 	}
 }
@@ -51,7 +52,7 @@ func (e *infaqService) CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest 
 
 	///////////////// Bikin concurrency dan di pisah /////////////////
 	// Get User
-	user, err := e.userService.GetUserSession(ctx)
+	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
 		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
@@ -86,7 +87,7 @@ func (e *infaqService) CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest 
 
 		TransaksiBank: models.TransaksiBank{
 			IdBank:     bank.ID,
-			Nama:       bank.Nama,
+			Nama:       bank.NamaBank,
 			NoRekening: bank.NoRekening,
 			AtasNama:   bank.AtasNama,
 		},
@@ -105,4 +106,14 @@ func (e *infaqService) CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest 
 	}
 
 	return &models.TransaksiResponse{KodeRiwayat: res.KodeRiwayat, Bayar: float64(res.Nominal), Bank: *bank}, nil
+}
+
+func (e *infaqService) GetRiwayatInfaqByUserId(ctx *gin.Context, idUser uint) ([]*models.InfaqRiwayat, error) {
+	infaqRiwayat, err := e.repository.GetInfaqRiwayat(ctx, idUser)
+	if err != nil {
+		zap.L().Error("error get infaq riwayat", zap.Error(err))
+		return nil, err
+	}
+
+	return infaqRiwayat, nil
 }

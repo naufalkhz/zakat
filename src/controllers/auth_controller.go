@@ -11,6 +11,7 @@ import (
 
 type AuthInterface interface {
 	SignIn(c *gin.Context)
+	GetUserSessionRest(c *gin.Context)
 }
 
 type authImplementation struct {
@@ -43,4 +44,23 @@ func (e *authImplementation) SignIn(c *gin.Context) {
 	}
 
 	utils.SuccessResponse(c, http.StatusOK, models.AuthReponse{Token: tokenString, User: *user})
+}
+
+func (e *authImplementation) GetUserSession(c *gin.Context) (*models.User, error) {
+	auth, err := e.svc.GetUserSession(c)
+	if err != nil {
+		return nil, err
+	}
+	return auth, err
+}
+
+func (e *authImplementation) GetUserSessionRest(c *gin.Context) {
+	auth, err := e.svc.GetUserSession(c)
+
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	utils.SuccessResponse(c, http.StatusOK, auth)
 }
