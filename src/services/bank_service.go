@@ -37,6 +37,7 @@ func (e *bankService) Create(ctx context.Context, bank *models.Bank) (*models.Ba
 func (e *bankService) GetListBank(ctx context.Context) ([]*models.Bank, error) {
 	res, err := e.repository.Get(ctx)
 	if err != nil {
+		zap.L().Error("error get list bank", zap.Error(err))
 		return nil, err
 	}
 	return res, nil
@@ -45,6 +46,7 @@ func (e *bankService) GetListBank(ctx context.Context) ([]*models.Bank, error) {
 func (e *bankService) GetBankById(ctx context.Context, idBank uint) (*models.Bank, error) {
 	res, err := e.repository.GetById(ctx, idBank)
 	if err != nil {
+		zap.L().Error("error get bank by id", zap.Error(err))
 		return nil, err
 	}
 	if res.ID == 0 {

@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"sort"
 
 	"github.com/gin-gonic/gin"
@@ -63,7 +62,6 @@ func (e *userService) Create(ctx context.Context, user *models.User) (*models.Us
 func (e *userService) Edit(ctx *gin.Context, userReq *models.User) (*models.User, error) {
 	userTarget, err := e.authService.GetUserSession(ctx)
 	if err != nil {
-		zap.L().Error("failed toget user", zap.Error(err))
 		return nil, err
 	}
 
@@ -79,38 +77,32 @@ func (e *userService) GetRiwayatPembayaranUser(ctx *gin.Context) (*models.Riwaya
 	// Get User
 	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
-		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
 	}
 
 	///////////// TODO: Buat ini parallel //////////////////
 	zakatPenghasilan, err := e.zakatService.GetRiwayatZakatPenghasilanByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat penghasilan", zap.Error(err))
 		return nil, err
 	}
 
 	zakatTabungan, err := e.zakatService.GetRiwayatZakatTabunganByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat tabungan", zap.Error(err))
 		return nil, err
 	}
 
 	zakatPerdagangan, err := e.zakatService.GetRiwayatZakatPerdaganganByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
 		return nil, err
 	}
 
 	zakatEmas, err := e.zakatService.GetRiwayatZakatEmasByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
 		return nil, err
 	}
 
 	infaqRiwayat, err := e.infaqService.GetRiwayatInfaqByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
 		return nil, err
 	}
 
@@ -124,44 +116,36 @@ func (e *userService) ExportRiwayatPembayaranUser(ctx *gin.Context) ([]*models.P
 	// Get User
 	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
-		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
 	}
 
 	///////////// TODO: Buat ini parallel //////////////////
 	zakatPenghasilan, err := e.zakatService.GetRiwayatZakatPenghasilanByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat penghasilan", zap.Error(err))
 		return nil, err
 	}
 
 	zakatTabungan, err := e.zakatService.GetRiwayatZakatTabunganByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat tabungan", zap.Error(err))
 		return nil, err
 	}
 
 	zakatPerdagangan, err := e.zakatService.GetRiwayatZakatPerdaganganByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
 		return nil, err
 	}
 
 	zakatEmas, err := e.zakatService.GetRiwayatZakatEmasByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
 		return nil, err
 	}
 
 	infaqRiwayat, err := e.infaqService.GetRiwayatInfaqByUserId(ctx, user.ID)
 	if err != nil {
-		zap.L().Error("error get riwayat zakat perdagangan", zap.Error(err))
 		return nil, err
 	}
 
 	///////////// TODO: Buat ini parallel //////////////////
-
-	fmt.Println(zakatEmas, zakatPerdagangan, zakatTabungan, infaqRiwayat)
 
 	var data []*models.PDF
 

@@ -43,19 +43,16 @@ func (e *zakatService) CreatePenghasilan(ctx *gin.Context, zakatPenghasilanReq *
 	// Get User
 	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
-		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
 	}
 	// Get Bank
 	bank, err := e.bankService.GetBankById(ctx, zakatPenghasilanReq.IdBank)
 	if err != nil {
-		zap.L().Error("error get bank", zap.Error(err))
 		return nil, err
 	}
 	// Get Emas
 	emas, err := e.emasService.Get(ctx)
 	if err != nil {
-		zap.L().Error("error get emas", zap.Error(err))
 		return nil, err
 	}
 	///////////////// Bikin concurrency dan di pisah /////////////////
@@ -96,19 +93,16 @@ func (e *zakatService) CreateTabungan(ctx *gin.Context, zakatTabunganReq *models
 	// Get User
 	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
-		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
 	}
 	// Get Bank
 	bank, err := e.bankService.GetBankById(ctx, zakatTabunganReq.IdBank)
 	if err != nil {
-		zap.L().Error("error get bank", zap.Error(err))
 		return nil, err
 	}
 	// Get Emas
 	emas, err := e.emasService.Get(ctx)
 	if err != nil {
-		zap.L().Error("error get emas", zap.Error(err))
 		return nil, err
 	}
 	///////////////// Bikin concurrency dan di pisah /////////////////
@@ -147,19 +141,16 @@ func (e *zakatService) CreatePerdagangan(ctx *gin.Context, zakatPerdaganganReq *
 	// Get User
 	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
-		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
 	}
 	// Get Bank
 	bank, err := e.bankService.GetBankById(ctx, zakatPerdaganganReq.IdBank)
 	if err != nil {
-		zap.L().Error("error get bank", zap.Error(err))
 		return nil, err
 	}
 	// Get Emas
 	emas, err := e.emasService.Get(ctx)
 	if err != nil {
-		zap.L().Error("error get emas", zap.Error(err))
 		return nil, err
 	}
 	///////////////// Bikin concurrency dan di pisah /////////////////
@@ -202,19 +193,16 @@ func (e *zakatService) CreateEmas(ctx *gin.Context, ZakatEmasReq *models.ZakatEm
 	// Get User
 	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
-		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
 	}
 	// Get Bank
 	bank, err := e.bankService.GetBankById(ctx, ZakatEmasReq.IdBank)
 	if err != nil {
-		zap.L().Error("error get bank", zap.Error(err))
 		return nil, err
 	}
 	// Get Emas
 	emas, err := e.emasService.Get(ctx)
 	if err != nil {
-		zap.L().Error("error get emas", zap.Error(err))
 		return nil, err
 	}
 	///////////////// Bikin concurrency dan di pisah /////////////////

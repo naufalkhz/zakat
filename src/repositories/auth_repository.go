@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/naufalkhz/zakat/src/models"
 	"gorm.io/gorm"
@@ -24,8 +23,6 @@ func NewAuthRepository(db *gorm.DB) AuthRepository {
 func (r *authRepository) Get(ctx context.Context, auth *models.AuthRequest) (*models.User, error) {
 	var res *models.User
 	tx := r.db.WithContext(ctx).Where("email = ?", auth.Email).First(&res)
-
-	fmt.Println(tx.Error)
 	return res, tx.Error
 }
 

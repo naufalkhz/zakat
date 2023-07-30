@@ -29,6 +29,7 @@ func NewEmasService(gateway gateway.EmasGateway, repository repositories.EmasRep
 func (e *emasService) Get(ctx context.Context) (*models.Emas, error) {
 	res, err := e.repository.Get(ctx)
 	if err != nil {
+		zap.L().Error("error get emas", zap.Error(err))
 		return nil, err
 	}
 	return res, nil
@@ -37,7 +38,7 @@ func (e *emasService) Get(ctx context.Context) (*models.Emas, error) {
 func (e *emasService) InquryHargaEmas() {
 	emas, err := e.gateway.GetHargaEmas(context.Background())
 	if err != nil {
-		zap.L().Error("error get harga emas", zap.Error(err))
+		zap.L().Error("error hit endpoint harga emas", zap.Error(err))
 		return
 	}
 

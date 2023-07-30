@@ -1,7 +1,6 @@
 package pdf
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/johnfercher/maroto/pkg/pdf"
 	"github.com/johnfercher/maroto/pkg/props"
 	"github.com/naufalkhz/zakat/src/models"
+	"go.uber.org/zap"
 )
 
 func GeneratePDF(data []*models.PDF) ([]byte, error) {
@@ -21,18 +21,12 @@ func GeneratePDF(data []*models.PDF) ([]byte, error) {
 	buildFooter(m)
 	buildFruitList(m, data)
 
-	// curDate := time.Now().Format("2006-01-02")
-	// err := m.OutputFileAndClose(fmt.Sprintf("Riwayat_Pembayaran_%s.pdf", curDate))
 	buff, err := m.Output()
 	if err != nil {
-		fmt.Println("⚠️  Could not save PDF:", err)
+		zap.L().Error("⚠️  Could not save PDF:", zap.Error(err))
 		os.Exit(1)
 	}
-
-	byteData := buff.Bytes()
-
-	fmt.Println("PDF saved successfully")
-	return byteData, err
+	return buff.Bytes(), err
 }
 
 func buildHeading(m pdf.Maroto) {
@@ -40,12 +34,11 @@ func buildHeading(m pdf.Maroto) {
 		m.Row(30, func() {
 			m.Col(5, func() {
 				err := m.FileImage("utils/pdf/zakat.png", props.Rect{
-					// Center:  true,
 					Percent: 75,
 				})
 
 				if err != nil {
-					fmt.Println("Image file was not loaded 😱 - ", err)
+					zap.L().Error("Image file was not loaded 😱 - ", zap.Error(err))
 				}
 
 			})

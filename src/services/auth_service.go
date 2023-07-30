@@ -53,6 +53,7 @@ func (e *authService) GetUserSession(ctx *gin.Context) (*models.User, error) {
 
 	user, err := e.repository.GetUserById(ctx, userId)
 	if err != nil {
+		zap.L().Error("failed get user by id", zap.Error(err))
 		return nil, err
 	}
 	return user, nil

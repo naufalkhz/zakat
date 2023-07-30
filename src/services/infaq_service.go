@@ -44,6 +44,7 @@ func (e *infaqService) CreateInfaq(ctx context.Context, infaq *models.Infaq) (*m
 func (e *infaqService) GetList(ctx context.Context) ([]*models.Infaq, error) {
 	res, err := e.repository.GetList(ctx)
 	if err != nil {
+		zap.L().Error("error get list infaq", zap.Error(err))
 		return nil, err
 	}
 	return res, nil
@@ -55,13 +56,11 @@ func (e *infaqService) CreateInfaqRiwayat(ctx *gin.Context, infaqRiwayatRequest 
 	// Get User
 	user, err := e.authService.GetUserSession(ctx)
 	if err != nil {
-		zap.L().Error("error get user session", zap.Error(err))
 		return nil, err
 	}
 	// Get Bank
 	bank, err := e.bankService.GetBankById(ctx, infaqRiwayatRequest.IdBank)
 	if err != nil {
-		zap.L().Error("error get bank", zap.Error(err))
 		return nil, err
 	}
 

@@ -81,7 +81,11 @@ func (e *userImplementation) ExportRiwayaPembayaranUser(c *gin.Context) {
 		utils.ErrorResponse(c, http.StatusInternalServerError, nil)
 	}
 
-	byteFile, _ := pdf.GeneratePDF(riwayatUser)
+	byteFile, err := pdf.GeneratePDF(riwayatUser)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, nil)
+		return
+	}
 	c.Header("Content-Disposition", "attachment; filename=udin.pdf")
 	c.Data(http.StatusOK, "application/pdf", byteFile)
 }
