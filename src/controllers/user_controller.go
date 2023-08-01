@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/naufalkhz/zakat/src/models"
@@ -86,6 +88,13 @@ func (e *userImplementation) ExportRiwayaPembayaranUser(c *gin.Context) {
 		utils.ErrorResponse(c, http.StatusInternalServerError, nil)
 		return
 	}
-	c.Header("Content-Disposition", "attachment; filename=udin.pdf")
+
+	// time
+	t := time.Now()
+	currentDate := fmt.Sprintf("%d%02d%02d", t.Year(), t.Month(), t.Day())
+	// Generate 8 Number
+	randomNumber := fmt.Sprint(t.Nanosecond())[:5]
+
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s_%s.pdf", currentDate, randomNumber))
 	c.Data(http.StatusOK, "application/pdf", byteFile)
 }
