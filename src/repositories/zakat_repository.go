@@ -49,24 +49,24 @@ func (r *zakatRepository) CreateZakatEmas(ctx context.Context, zakatEmas *models
 
 func (r *zakatRepository) GetRiwayatZakatPenghasilan(ctx context.Context, idUser uint) ([]*models.ZakatPenghasilan, error) {
 	var zakatPenghasilan []*models.ZakatPenghasilan
-	tx := r.db.Debug().WithContext(ctx).Where("id_user = ?", idUser).Find(&zakatPenghasilan)
+	tx := r.db.Debug().WithContext(ctx).Where("id_user = ?", idUser).Order("ID desc").Find(&zakatPenghasilan)
 	return zakatPenghasilan, tx.Error
 }
 
 func (r *zakatRepository) GetRiwayatZakatTabungan(ctx context.Context, idUser uint) ([]*models.ZakatTabungan, error) {
 	var zakatTabungan []*models.ZakatTabungan
-	tx := r.db.Debug().WithContext(ctx).Where("id_user = ?", idUser).Find(&zakatTabungan)
+	tx := r.db.Debug().WithContext(ctx).Where("id_user = ?", idUser).Order("ID desc").Find(&zakatTabungan)
 	return zakatTabungan, tx.Error
 }
 
 func (r *zakatRepository) GetRiwayatZakatPerdagangan(ctx context.Context, idUser uint) ([]*models.ZakatPerdagangan, error) {
 	var zakatPerdagangan []*models.ZakatPerdagangan
-	tx := r.db.Debug().WithContext(ctx).Where("id_user = ?", idUser).Find(&zakatPerdagangan)
+	tx := r.db.Debug().WithContext(ctx).Where("id_user = ?", idUser).Order("ID desc").Find(&zakatPerdagangan)
 	return zakatPerdagangan, tx.Error
 }
 
 func (r *zakatRepository) GetRiwayatZakatEmas(ctx context.Context, idUser uint) ([]*models.ZakatEmas, error) {
 	var zakatEmas []*models.ZakatEmas
-	tx := r.db.Debug().WithContext(ctx).Where("id_user = ?", idUser).Find(&zakatEmas)
+	tx := r.db.Debug().WithContext(ctx).Where("id_user = ?", idUser).Order("ID desc").Find(&zakatEmas)
 	return zakatEmas, tx.Error
 }

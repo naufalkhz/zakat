@@ -32,7 +32,7 @@ func (r *infaqRepository) CreateInfaq(ctx context.Context, infaq *models.Infaq) 
 
 func (r *infaqRepository) GetList(ctx context.Context) ([]*models.Infaq, error) {
 	var infaq []*models.Infaq
-	tx := r.db.WithContext(ctx).Find(&infaq)
+	tx := r.db.WithContext(ctx).Order("ID desc").Find(&infaq)
 	return infaq, tx.Error
 }
 
